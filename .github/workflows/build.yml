@@ -1,0 +1,20 @@
+name: Test System Info Script
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  test-on-different-platforms:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run the script
+        run: python yeah.py
