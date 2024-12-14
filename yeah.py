@@ -1,6 +1,4 @@
-import platform
 from platform import architecture, machine, mac_ver, system
-from os import environ
 
 # Example function to normalize architecture
 def normalize_architecture(architecture):
@@ -20,7 +18,12 @@ def get_system_info():
         win_edition = win32_edition()
         arch = architecture()[0]
         arch = normalize_architecture(arch)
-        return f"Windows {win_version} {win_edition} {arch}"
+        outputs = [f"Windows {win_version} {win_edition} {arch}"]
+        if not win_version:
+            outputs.append("Windows version not available")
+        if not win_edition:
+            outputs.append("Windows edition not available")
+        return "\n".join(outputs)
 
     elif sys == "Linux":
         try:
@@ -32,16 +35,17 @@ def get_system_info():
             arch = architecture()[0]
             arch = normalize_architecture(arch)
 
+            outputs = []
             if pretty_name:
-                return f"{pretty_name} {arch}"
-            elif version:
-                return f"{version} {arch}"
-            else:
+                outputs.append(f"{pretty_name} {arch}")
+            if version:
+                outputs.append(f"{version} {arch}")
+            if version_id:
                 name = distro_info.get("NAME", "Linux")
-                if version_id:
-                    return f"{name} {version_id} {arch}"
-                else:
-                    return f"{name} {arch}"
+                outputs.append(f"{name} {version_id} {arch}")
+            if not outputs:
+                outputs.append(f"Linux {arch}")
+            return "\n".join(outputs)
 
         except OSError:
             return f"Linux {architecture()[0]}"
@@ -50,7 +54,10 @@ def get_system_info():
         mac_version = mac_ver()[0]
         arch = machine()
         arch = normalize_architecture(arch)
-        return f"macOS {mac_version} {arch}"
+        outputs = [f"macOS {mac_version} {arch}"]
+        if not mac_version:
+            outputs.append("macOS version not available")
+        return "\n".join(outputs)
 
     else:
         return "Unable to get OS information (っ °Д °;)っ"
